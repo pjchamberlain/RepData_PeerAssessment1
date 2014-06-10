@@ -15,7 +15,8 @@ The variables included in this dataset are:
 The dataset is stored in a comma-separated-value (CSV) file from [https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip]. There are a total of 17,568 observations in this dataset.
 
 ## Read the data into R
-```{r read_data, echo = TRUE }
+
+```r
 #set source data file path name
 data_file <- "~/coursera/R_data/repdata-data-activity/activity.csv"
 #read into R
@@ -25,60 +26,107 @@ data$date2 <- as.Date(data$date, format = "%Y-%m-%d")
 ```
 
 ## Mean Total Steps per Day
-```{r total_steps, echo = TRUE, fig.width=7, fig.height=6}
+
+```r
 hist(by(data$steps,data$date, FUN = sum),breaks=20)
 ```
 
+![plot of chunk total_steps](figure/total_steps.png) 
+
 ## Mean and Median Total Number of Steps per Day (ignoring missing values)
-```{r mean_median_steps , echo = TRUE,}
+
+```r
 mean(by(data$steps,data$date, FUN = sum), na.rm = TRUE)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(by(data$steps,data$date, FUN = sum), na.rm = TRUE)
 ```
 
+```
+## [1] 10765
+```
+
 ## Average Daily Activity Pattern
-```{r plot_daily_activity , echo = TRUE}
+
+```r
 #find total number of days
 n_days <- length(unique(data$date))
 #then plot
 plot(by(data$steps/n_days ,data$interval, FUN = sum, na.rm = TRUE), type = "l")
 ```
 
+![plot of chunk plot_daily_activity ](figure/plot_daily_activity .png) 
+
 ## Maximum Average Steps per Interval
 The interval with the maximum average total steps and the maximum average total number of steps is:
-```{r max_ave_steps , echo = TRUE} 
+
+```r
 sort(unlist(by(data$steps/n_days ,data$interval, FUN = sum, na.rm = TRUE)), decreasing=TRUE)[1]
+```
+
+```
+##   835 
+## 179.1
 ```
 ## Missing Values
 The number of records in the data set with a missing value for steps is:
-```{r num_missing_values , echo = TRUE}
+
+```r
 sum(is.na(data$steps))
+```
+
+```
+## [1] 2304
 ```
 ## Filling in missing values
 The next code block replaces any missing values for steps with the daily average for that interval.
-```{r fill_missing_values , echo = TRUE}
+
+```r
 data_no_nas <- data
 #replace NAs in the steps field with the average steps for that interval
 data_no_nas$steps <- ifelse(is.na(data$steps),unlist(by(data$steps/n_days ,data$interval, FUN = sum, na.rm = TRUE)),data$steps)
 ```
 ## Histogram of the Total Number of Steps per Day
 (with missing values for steps replaced with the average steps per interval)
-```{r hist_steps_per_day, , echo = TRUE, fig.width=7, fig.height=6}
+
+```r
 hist(by(data_no_nas$steps,data$date, FUN = sum),breaks=20)
 ```
+
+![plot of chunk hist_steps_per_day, ](figure/hist_steps_per_day, .png) 
 ## Mean and Median Number of Steps per Day
 (with missing values for steps replaced with the average steps per interval).
 The impact of filling in the missing steps data was to lower the mean and median total steps per day.
-```{r mean_median_per_day , echo = TRUE}
+
+```r
 mean(by(data_no_nas$steps,data$date, FUN = sum), na.rm = TRUE)
+```
+
+```
+## [1] 10581
+```
+
+```r
 median(by(data_no_nas$steps,data$date, FUN = sum), na.rm = TRUE)
 ```
+
+```
+## [1] 10395
+```
 ## Differences in Activity Patterns between Weekdays and Weekends
-```{r weekends_weekdays , echo = TRUE}
+
+```r
 #add a factor variable for weekend and weekday
 data_no_nas$weekendday <- ifelse(weekdays(data_no_nas$date2)=="Sunday"|weekdays(data_no_nas$date2)=="Saturday" ,"weekend","weekday")
 ```
 The following plot shows the average number of steps per interval for weekdays compared to weekend days:
-```{r plot_weekends_weekdays , echo = TRUE}
+
+```r
 library(lattice)
 ##first add column of pre-calculated mean values per interval
 #(couldn't get this to work in one line, so doing each in turn)
@@ -89,3 +137,5 @@ data_no_nas$interval_mean_steps[data_no_nas$weekendday == "weekend"] <- by(data_
 ##then plot
 xyplot(interval_mean_steps ~ interval | weekendday , data_no_nas, type="l", layout = c(1,2))
 ```
+
+![plot of chunk plot_weekends_weekdays ](figure/plot_weekends_weekdays .png) 
